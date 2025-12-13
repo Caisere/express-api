@@ -1,0 +1,10 @@
+{
+  "prisma.prismaFmtBinPath": "./node_modules/prisma/prisma-fmt-darwin",
+  "prisma.prismaFmtBinPathWin": "./node_modules/prisma/prisma-fmt-windows.exe",
+  "prisma.prismaFmtBinPathLinux": "./node_modules/prisma/prisma-fmt-linux",
+  "prisma.validate": false,
+  "[prisma]": {
+    "editor.defaultFormatter": "Prisma.prisma"
+  }
+}
+

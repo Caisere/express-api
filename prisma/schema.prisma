@@ -5,43 +5,44 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client-js"
-//   output   = "../src/generated"
-
+    provider = "prisma-client-js"
+    //   output   = "../src/generated/prisma"
 }
 
+// @ts-ignore - Prisma 6 syntax (url property is valid for Prisma 6)
 datasource db {
-  provider = "postgresql"
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
 }
 
 // USER -> Movies -> Watchlst
 
 model User {
-    id String @id @default(uuid())
-    name String
-    email String @unique
+    id       String @id @default(uuid())
+    name     String
+    email    String @unique
     password String
-    
+
     createAt DateTime @default(now())
 
     //relations
-    movies Movie[] @relation("MovieCreator")
+    movies         Movie[]         @relation("MovieCreator")
     watchlistItems WatchlistItem[]
 }
 
 model Movie {
-    id String @id @default(uuid())
-    title String
-    overview String?
+    id          String   @id @default(uuid())
+    title       String
+    overview    String?
     releaseYear Int
-    genres String[] @default([])
-    runtime Int?
-    posterUrl String?
-    createdBy String
-    createdAt DateTime @default(now())
+    genres      String[] @default([])
+    runtime     Int?
+    posterUrl   String?
+    createdBy   String
+    createdAt   DateTime @default(now())
 
     //relations
-    creator User @relation("MovieCreator", fields: [createdBy], references: [id], onDelete: Cascade)
+    creator       User            @relation("MovieCreator", fields: [createdBy], references: [id], onDelete: Cascade)
     watchlistItem WatchlistItem[]
 }
 
@@ -53,17 +54,16 @@ enum WashlistStatus {
 }
 
 model WatchlistItem {
-    id String @id @default(uuid())
-    userId String
-    movieId String
-    status WashlistStatus @default(PLANNED)
-    rating Int?
-    note String?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @default(now())
+    id        String         @id @default(uuid())
+    userId    String
+    movieId   String
+    status    WashlistStatus @default(PLANNED)
+    rating    Int?
+    note      String?
+    createdAt DateTime       @default(now())
+    updatedAt DateTime       @default(now())
 
     // relations
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
     movie Movie @relation(fields: [movieId], references: [id], onDelete: Cascade)
 }
-
