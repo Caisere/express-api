@@ -5,13 +5,14 @@ const router = express.Router()
 
 router.get("/", (req, res) => {
     return res.json({
-        message: 'This is request is comming from the Movie Route',
+        message: 'This request is comming from the Movie Route',
     })
 })
 
 router.post("/", (req, res) => {
+    const data = req.body()
     return res.json({
-        
+        data
     })
 })
 
