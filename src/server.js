@@ -6,6 +6,7 @@ import { connectDB, disconnectDB } from "./config/db.js";
 import movieRoutes from "./routes/movieRoute.js";
 import authRoutes from "./routes/authRoute.js";
 import userRoutes from "./routes/usersRoute.js"
+import watchlistRoutes from './routes/watchlistRoute.js'
 
 const app = express();
 
@@ -17,6 +18,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/movies", movieRoutes);
 app.use("/auth", authRoutes);
 app.use('/users', userRoutes)
+app.use('/watchlist', watchlistRoutes)
 
 app.get("/", (req, res) => {
     return res.json({
