@@ -5,6 +5,7 @@ import { connectDB, disconnectDB } from "./config/db.js";
 //import Routes
 import movieRoutes from "./routes/movieRoute.js";
 import authRoutes from "./routes/authRoute.js";
+import userRoutes from "./routes/usersRoute.js"
 
 const app = express();
 
@@ -15,6 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 // API routes
 app.use("/movies", movieRoutes);
 app.use("/auth", authRoutes);
+app.use('/users', userRoutes)
 
 app.get("/", (req, res) => {
     return res.json({
