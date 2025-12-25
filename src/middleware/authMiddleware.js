@@ -3,8 +3,6 @@ import {prisma} from '../config/db.js'
 
 // Read token from request, check if token is valid
 export const authMiddleware = async (req, res, next) => {
-    console.log("Checking for user authentication before adding movie")
-
     let token; 
 
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
