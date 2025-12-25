@@ -7,7 +7,7 @@ const router = express.Router()
 router.get("/", getAllMovies)
 
 router.post("/", (req, res) => {
-    const data = req.body()
+    const data = req.body
     return res.json({
         data
     })

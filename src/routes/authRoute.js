@@ -12,7 +12,7 @@ const router = express.Router()
 router.post('/register', validateRequest(registerSchema),register)
 
 // login route
-router.post('/login', validateRequest(loginSchema),login)
+router.post('/login', validateRequest(loginSchema), login)
 
 // logout route
 router.post('/logout', logout)

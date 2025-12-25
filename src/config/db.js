@@ -1,8 +1,9 @@
 import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
+import { env } from "../validators/envValidation.js";
 
 const prisma = new PrismaClient({
-    log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
+    log: env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
 });
 
 const connectDB = async () => {
@@ -16,7 +17,13 @@ const connectDB = async () => {
 };
 
 const disconnectDB = async () => {
-    await prisma.$disconnect();
+    try {
+        await prisma.$disconnect();
+        console.log("✅ Database disconnected");
+    } catch (err) {
+        console.error("❌ Connection error:", err.message);
+        process.exit(1);
+    }
 };
 
 export { prisma, connectDB, disconnectDB };

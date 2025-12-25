@@ -7,6 +7,7 @@ import movieRoutes from "./routes/movieRoute.js";
 import authRoutes from "./routes/authRoute.js";
 import userRoutes from "./routes/usersRoute.js"
 import watchlistRoutes from './routes/watchlistRoute.js'
+import { env } from "./validators/envValidation.js";
 
 const app = express();
 
@@ -26,16 +27,13 @@ app.get("/", (req, res) => {
     });
 });
 
-// server port
-const PORT = 3005;
-
 // Connect to database and start server
 let server;
 const startServer = async () => {
     try {
         await connectDB();
-        server = app.listen(PORT, () => {
-            console.log(`Running server at port ${PORT}`);
+        server = app.listen(env.PORT, () => {
+            console.log(`Running server at port ${env.PORT}`);
         });
 
         return server;

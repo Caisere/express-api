@@ -1,6 +1,7 @@
 import { prisma } from "../config/db.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/generateToken.js";
+import { env } from "../validators/envValidation.js";
 
 // User Registration/Sign-up function
 const register = async (req, res) => {
@@ -63,11 +64,12 @@ const register = async (req, res) => {
                 token
             },
         });
+
     } catch (error) {
         console.error("Registration error:", error);
         return res.status(500).json({
             error: "Internal server error. Please try again later.",
-            message: process.env.NODE_ENV === "development" ? error.message : undefined,
+            message: env.NODE_ENV === "development" ? error.message : undefined,
         });
     }
 };
@@ -118,7 +120,7 @@ const login = async (req, res) => {
         // generate jwt token
         const token = generateToken(user.id, res)
         
-        return res.status(201).json({
+        return res.status(200).json({
             statusCode: 200,
             success: "user successfully logged in",
             data: {
@@ -134,7 +136,7 @@ const login = async (req, res) => {
         console.error("Login error:", error);
         return res.status(500).json({
             error: "Internal server error. Please try again later.",
-            message: process.env.NODE_ENV === "development" ? error.message : undefined,
+            message: env.NODE_ENV === "development" ? error.message : undefined,
         });
     }
 }
@@ -145,10 +147,12 @@ const logout = async (req, res) => {
             httpOnly: true,
             expires: new Date(0)
         })
+        
         return res.status(200).json({
             status: "success",
             message: "Logged out successfully"
         })
+
     } catch(error) {
         console.error("Login error:", error);
         return res.status(500).json({

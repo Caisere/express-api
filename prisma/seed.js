@@ -1,8 +1,9 @@
 import {PrismaClient} from '@prisma/client';
+import { env } from '../src/validators/envValidation';
 
 const prisma = new PrismaClient();
 
-const creatorId = process.env.CREATOR_ID;
+const creatorId = env.CREATOR_ID;
 
 
 const movies = [

@@ -1,4 +1,5 @@
 import { prisma } from "../config/db.js";
+import { env } from "../validators/envValidation.js";
 
 const addToWatchlist = async (req, res) => {
     try {
@@ -35,7 +36,7 @@ const addToWatchlist = async (req, res) => {
         }
 
         // create the watchlistitem 
-        const washliistItem = await prisma.watchlistItem.create({
+        const watchlistItem = await prisma.watchlistItem.create({
             data: {
                 userId: req.user.id,
                 movieId,
@@ -48,13 +49,14 @@ const addToWatchlist = async (req, res) => {
         
         return res.status(201).json({
             message: 'Movie successfully added!',
-            data: washliistItem
+            data: watchlistItem
         })
+        
     } catch(err) {
         console.error(err)
         return res.status(500).json({
             error: "Internal server error. Please try again!",
-            message: process.env.NODE_ENV === 'development' ? err.message : undefined,
+            message: env.NODE_ENV === 'development' ? err.message : undefined,
 
         })
     }
@@ -62,87 +64,104 @@ const addToWatchlist = async (req, res) => {
 
 // update the watchlist item 
 const updateWatchlistItem = async (req, res) => {
-    const {status, rating, note} = req.body
-    const itemId = req.params.id
+    try {
+        const {status, rating, note} = req.body
+        const itemId = req.params.id
 
-    // check watchlist item and verify the ownership before updating
-    // check if the movie in the watchlist
-    const watchlistItem = await prisma.watchlistItem.findUnique({
-        where: {
-            id: itemId
+        // check watchlist item and verify the ownership before updating
+        // check if the movie in the watchlist
+        const watchlistItem = await prisma.watchlistItem.findUnique({
+            where: {
+                id: itemId
+            }
+        }) 
+
+        if(!watchlistItem) {
+            return res.status(404).json({
+                error: "Watchlist item not found"
+            })
         }
-    }) 
 
-    if(!watchlistItem) {
-        return res.status(404).json({
-            error: "Watchlist item not found"
+        // ensure only user can update item
+        if(watchlistItem.userId !== req.user.id) {
+            return res.status(404).json({
+                error: "Not allowed to update this watchlist item"
+            })
+        }
+
+        const updateData = {}
+
+        if(status !== undefined) updateData.status = status.toUpperCase();
+        if(rating !== undefined) updateData.rating = rating;
+        if(note !== undefined) updateData.note = note;
+
+        //update watchlist item
+        const updatedItem = await prisma.watchlistItem.update({
+            where: {
+                id: itemId
+            },
+            data: updateData
+        })
+
+        res.status(200).json({
+            status: "success",
+            data: {
+                watchlistItem: updatedItem // send current updated data with response
+            }
+        })
+
+    } catch(err) {
+        console.error(err)
+        return res.status(500).json({
+            error: "Internal server error. Please try again!",
+            message: env.NODE_ENV === 'development' ? err.message : undefined,
         })
     }
-
-    // ensure only user can update item
-    if(watchlistItem.userId !== req.user.id) {
-        return res.status(404).json({
-            error: "Not allowed to update this watchlist item"
-        })
-    }
-
-    const updateData = {}
-
-    if(status !== undefined) updateData.status = status.toUpperCase();
-    if(rating !== undefined) updateData.rating = rating;
-    if(note !== undefined) updateData.note = note;
-
-    //update watchlist item
-    const updatedItem = await prisma.watchlistItem.update({
-        where: {
-            id: itemId
-        },
-        data: updateData
-    })
-
-    res.status(200).json({
-        status: "success",
-        data: {
-            watchlistItem: updatedItem // send current updated data with response
-        }
-    })
-
 }
 
 
 const removeFromWatchlist = async (req, res) => {
-    const id = req.params.id
+    try {
+        const id = req.params.id
 
-    // check if the movie in the watchlist
-    const watchlistItem = await prisma.watchlistItem.findUnique({
-        where: {
-            id: id
+        // check if the movie in the watchlist
+        const watchlistItem = await prisma.watchlistItem.findUnique({
+            where: {
+                id: id
+            }
+        }) 
+    
+        if(!watchlistItem) {
+            return res.status(404).json({
+                error: "Watchlist item not found"
+            })
         }
-    }) 
+    
+        // ensure only user can delete
+        if(watchlistItem.userId !== req.user.id) {
+            return res.status(404).json({
+                error: "Not allowed to delete this watchlist item"
+            })
+        }
+    
+        await prisma.watchlistItem.delete({
+            where: {
+                id: id
+            }
+        })
+    
+        res.status(200).json({
+            status: "success",
+            message: "Movie removed from watchlist"
+        })
 
-    if(!watchlistItem) {
-        return res.status(404).json({
-            error: "Watchlist item not found"
+    } catch (err) {
+        console.error(err)
+        return res.status(500).json({
+            error: "Internal server error. Please try again!",
+            message: env.NODE_ENV === 'development' ? err.message : undefined,
         })
     }
-
-    // ensure only user can delete
-    if(watchlistItem.userId !== req.user.id) {
-        return res.status(404).json({
-            error: "Not allowed to delete this watchlist item"
-        })
-    }
-
-    await prisma.watchlistItem.delete({
-        where: {
-            id: id
-        }
-    })
-
-    res.status(200).json({
-        status: "success",
-        message: "Movie removed from watchlist"
-    })
 }
 
 export {addToWatchlist, updateWatchlistItem,removeFromWatchlist}
