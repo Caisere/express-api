@@ -13,6 +13,7 @@ A robust RESTful API built with Express.js and Prisma ORM for managing movies an
 - [Database Setup](#database-setup)
 - [Running the Application](#running-the-application)
 - [API Documentation](#api-documentation)
+- [Future Endpoints](#-future-endpoints)
 - [Database Schema](#database-schema)
 
 ## ✨ Features
@@ -286,9 +287,9 @@ GET /movies
 ```http
 POST /watchlist
 Content-Type: application/json
+Authorization: Bearer <token>
 
 {
-  "userId": "user-uuid-here",
   "movieId": "movie-uuid-here",
   "status": "PLANNED",
   "rating": 5,
@@ -302,6 +303,8 @@ Content-Type: application/json
 - `WATCHING` - Currently watching
 - `COMPLETED` - Finished watching
 - `DROPPED` - Stopped watching
+
+**Note:** `userId` is automatically extracted from the authenticated user's token. `status`, `rating`, and `note` are optional fields.
 
 **Response:**
 
@@ -321,13 +324,86 @@ Content-Type: application/json
 }
 ```
 
+#### Update Watchlist Item
+
+```http
+PUT /watchlist/:id
+Content-Type: application/json
+Authorization: Bearer <token>
+
+{
+  "status": "COMPLETED",
+  "rating": 9,
+  "note": "Amazing movie! Highly recommend."
+}
+```
+
+Update the status, rating, or note of a watchlist item. All fields are optional - only include the fields you want to update.
+
+**Response:**
+
+```json
+{
+  "status": "success",
+  "data": {
+    "watchlistItem": {
+      "id": "watchlist-uuid",
+      "userId": "user-uuid",
+      "movieId": "movie-uuid",
+      "status": "COMPLETED",
+      "rating": 9,
+      "note": "Amazing movie! Highly recommend.",
+      "createdAt": "2024-01-01T00:00:00.000Z",
+      "updatedAt": "2024-01-02T00:00:00.000Z"
+    }
+  }
+}
+```
+
+#### Remove Movie from Watchlist
+
+```http
+DELETE /watchlist/:id
+Authorization: Bearer <token>
+```
+
+Remove a movie from the authenticated user's watchlist. Only the owner of the watchlist item can delete it.
+
+**Response:**
+
+```json
+{
+  "status": "success",
+  "message": "Movie removed from watchlist"
+}
+```
+
 ### User Endpoints
+
+#### Get All Users
 
 ```http
 GET /users
 ```
 
-_(Check `src/routes/usersRoute.js` for available user endpoints)_
+Retrieve a list of all registered users (excluding sensitive information like passwords).
+
+**Response:**
+
+```json
+{
+  "message": "All valid users",
+  "allValidUsers": [
+    {
+      "id": "user-uuid",
+      "name": "John Doe",
+      "email": "john@example.com",
+      "createdAt": "2024-01-01T00:00:00.000Z"
+    }
+  ],
+  "total": 1
+}
+```
 
 ### Root Endpoint
 
@@ -342,6 +418,66 @@ GET /
   "message": "This is the home page"
 }
 ```
+
+## 🔮 Future Endpoints
+
+The following endpoints are planned for future implementation and are open for collaboration:
+
+### Watchlist Endpoints
+
+#### Get User's Watchlist
+
+```http
+GET /watchlist
+```
+
+Retrieve all watchlist items for the authenticated user.
+
+#### Get Specific Watchlist Item
+
+```http
+GET /watchlist/:id
+```
+
+Retrieve a specific watchlist item by its ID.
+
+### Movie Endpoints
+
+#### Get Single Movie
+
+```http
+GET /movies/:id
+```
+
+Retrieve detailed information about a specific movie by its ID.
+
+### User Endpoints
+
+#### Update User Profile
+
+```http
+PATCH /users/:id
+Content-Type: application/json
+
+{
+  "name": "Updated Name",
+  "email": "updated@example.com"
+}
+```
+
+Update user profile information (name, email, etc.).
+
+#### Delete User Account
+
+```http
+DELETE /users/:id
+```
+
+Delete a user account and all associated data.
+
+---
+
+**Note:** These endpoints are not yet implemented. Contributions are welcome! Please refer to the [Contributing](#-contributing) section for guidelines.
 
 ## 🗃 Database Schema
 
