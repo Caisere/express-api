@@ -60,8 +60,89 @@ const addToWatchlist = async (req, res) => {
     }
 }
 
-const removeFromWatchlist = async (req, res) => {
+// update the watchlist item 
+const updateWatchlistItem = async (req, res) => {
+    const {status, rating, note} = req.body
+    const itemId = req.params.id
+
+    // check watchlist item and verify the ownership before updating
+    // check if the movie in the watchlist
+    const watchlistItem = await prisma.watchlistItem.findUnique({
+        where: {
+            id: itemId
+        }
+    }) 
+
+    if(!watchlistItem) {
+        return res.status(404).json({
+            error: "Watchlist item not found"
+        })
+    }
+
+    // ensure only user can update item
+    if(watchlistItem.userId !== req.user.id) {
+        return res.status(404).json({
+            error: "Not allowed to update this watchlist item"
+        })
+    }
+
+    const updateData = {}
+
+    if(status !== undefined) updateData.status = status.toUpperCase();
+    if(rating !== undefined) updateData.rating = rating;
+    if(note !== undefined) updateData.note = note;
+
+    //update watchlist item
+    const updatedItem = await prisma.watchlistItem.update({
+        where: {
+            id: itemId
+        },
+        data: updateData
+    })
+
+    res.status(200).json({
+        status: "success",
+        data: {
+            watchlistItem: updatedItem // send current updated data with response
+        }
+    })
 
 }
 
-export {addToWatchlist, removeFromWatchlist}
+
+const removeFromWatchlist = async (req, res) => {
+    const id = req.params.id
+
+    // check if the movie in the watchlist
+    const watchlistItem = await prisma.watchlistItem.findUnique({
+        where: {
+            id: id
+        }
+    }) 
+
+    if(!watchlistItem) {
+        return res.status(404).json({
+            error: "Watchlist item not found"
+        })
+    }
+
+    // ensure only user can delete
+    if(watchlistItem.userId !== req.user.id) {
+        return res.status(404).json({
+            error: "Not allowed to delete this watchlist item"
+        })
+    }
+
+    await prisma.watchlistItem.delete({
+        where: {
+            id: id
+        }
+    })
+
+    res.status(200).json({
+        status: "success",
+        message: "Movie removed from watchlist"
+    })
+}
+
+export {addToWatchlist, updateWatchlistItem,removeFromWatchlist}
