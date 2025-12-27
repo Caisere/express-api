@@ -17,11 +17,18 @@ datasource db {
 
 // USER -> Movies -> Watchlst
 
+enum UserRole {
+    User
+    Admin
+    Super_Admin
+}
+
 model User {
     id       String @id @default(uuid())
     name     String
     email    String @unique
     password String
+    role     UserRole @default(User)
 
     createdAt DateTime @default(now())
 
