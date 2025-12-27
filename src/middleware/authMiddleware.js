@@ -1,5 +1,6 @@
 import jwt from 'jsonwebtoken'
 import {prisma} from '../config/db.js'
+import { env } from '../validators/envValidation.js';
 
 // Read token from request, check if token is valid
 export const authMiddleware = async (req, res, next) => {
@@ -19,7 +20,7 @@ export const authMiddleware = async (req, res, next) => {
 
     // verify token
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET) // this uses the jwt secret to verify the token. 
+        const decoded = jwt.verify(token, env.JWT_SECRET) // this uses the jwt secret to verify the token. 
 
         // the decoded comes back with the userId, which was passed to the payload. so we can also use that to verify the user
         const user = await prisma.user.findUnique({
