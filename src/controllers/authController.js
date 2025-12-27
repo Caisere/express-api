@@ -126,7 +126,8 @@ const login = async (req, res) => {
             data: {
                 user: {
                     id: user.id,
-                    email: email
+                    email: email,
+                    role: user.role
                 },
                 token
             }
