@@ -19,11 +19,13 @@ A robust RESTful API built with Express.js and Prisma ORM for managing movies an
 ## ✨ Features
 
 - **User Authentication**: Secure registration and login with JWT tokens and bcrypt password hashing
+- **Role-Based Access Control**: User roles (User, Admin, Super_Admin) with protected routes
 - **Movie Management**: Browse and retrieve movie information
-- **Watchlist Management**: Add movies to personal watchlists with status tracking
+- **Watchlist Management**: Add, update, and remove movies from personal watchlists with status tracking
 - **Multiple Watchlist States**: Track movies as PLANNED, WATCHING, COMPLETED, or DROPPED
-- **Rating & Notes**: Add personal ratings and notes to watchlist items
+- **Rating & Notes**: Add personal ratings (1-10) and notes to watchlist items
 - **Database Relationships**: Properly structured relational database with Prisma ORM
+- **Request Validation**: Zod schema validation for request bodies
 - **Error Handling**: Comprehensive error handling and validation
 - **Security**: HTTP-only cookies, secure token handling, and password encryption
 
@@ -31,10 +33,11 @@ A robust RESTful API built with Express.js and Prisma ORM for managing movies an
 
 - **Runtime**: Node.js (ES Modules)
 - **Framework**: Express.js v5.2.1
-- **Database**: PostgreSQL
+- **Database**: PostgreSQL (NEON)
 - **ORM**: Prisma 6.8.0
 - **Authentication**: JWT (JSON Web Tokens)
 - **Password Hashing**: bcryptjs
+- **Validation**: Zod schema validation
 - **Development**: Nodemon for hot-reloading
 
 ## 📁 Project Structure
@@ -53,6 +56,10 @@ express-api/
 │   │   ├── moviesController.js    # Movie operations
 │   │   ├── usersController.js     # User management
 │   │   └── watchlistController.js # Watchlist operations
+│   ├── middleware/
+│   │   ├── authMiddleware.js      # JWT authentication middleware
+│   │   ├── requireRole.js         # Role-based access control
+│   │   └── validateRequest.js     # Request validation middleware
 │   ├── routes/
 │   │   ├── authRoute.js           # Authentication routes
 │   │   ├── movieRoute.js          # Movie routes
@@ -60,6 +67,10 @@ express-api/
 │   │   └── watchlistRoute.js      # Watchlist routes
 │   ├── utils/
 │   │   └── generateToken.js       # JWT token generation
+│   ├── validators/
+│   │   ├── authValidation.js      # Auth request validators
+│   │   ├── envValidation.js       # Environment variable validation
+│   │   └── watchlistValidator.js  # Watchlist request validators
 │   └── server.js                  # Application entry point
 ├── package.json
 └── README.md
@@ -229,12 +240,15 @@ Content-Type: application/json
   "data": {
     "user": {
       "id": "uuid-here",
-      "email": "john@example.com"
+      "email": "john@example.com",
+      "role": "User"
     },
     "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
   }
 }
 ```
+
+**Note:** The response includes the user's role (User, Admin, or Super_Admin) which is used for role-based access control.
 
 #### Logout
 
@@ -280,6 +294,24 @@ GET /movies
 }
 ```
 
+#### Create Movie
+
+```http
+POST /movies
+Content-Type: application/json
+
+{
+  "title": "Inception",
+  "overview": "A thief who steals corporate secrets...",
+  "releaseYear": 2010,
+  "genres": ["Action", "Sci-Fi"],
+  "runtime": 148,
+  "posterUrl": "https://example.com/poster.jpg"
+}
+```
+
+**Note:** This endpoint currently returns the request body. Full implementation with database persistence is pending.
+
 ### Watchlist Endpoints
 
 #### Add Movie to Watchlist
@@ -304,7 +336,7 @@ Authorization: Bearer <token>
 - `COMPLETED` - Finished watching
 - `DROPPED` - Stopped watching
 
-**Note:** `userId` is automatically extracted from the authenticated user's token. `status`, `rating`, and `note` are optional fields.
+**Note:** `userId` is automatically extracted from the authenticated user's token. `status`, `rating`, and `note` are optional fields. Rating must be an integer between 1 and 10.
 
 **Response:**
 
@@ -380,13 +412,16 @@ Remove a movie from the authenticated user's watchlist. Only the owner of the wa
 
 ### User Endpoints
 
+**Note:** All user endpoints require authentication and are restricted to Admin and Super_Admin roles only.
+
 #### Get All Users
 
 ```http
 GET /users
+Authorization: Bearer <token>
 ```
 
-Retrieve a list of all registered users (excluding sensitive information like passwords).
+Retrieve a list of all registered users (excluding sensitive information like passwords). Requires Admin or Super_Admin role.
 
 **Response:**
 
@@ -402,6 +437,49 @@ Retrieve a list of all registered users (excluding sensitive information like pa
     }
   ],
   "total": 1
+}
+```
+
+#### Get Individual User
+
+```http
+GET /users/:id
+Authorization: Bearer <token>
+```
+
+Retrieve detailed information about a specific user by their ID. Requires Admin or Super_Admin role.
+
+**Response:**
+
+```json
+{
+  "message": "User found for user-id: user-uuid",
+  "user": {
+    "id": "user-uuid",
+    "name": "John Doe",
+    "email": "john@example.com",
+    "role": "User",
+    "createdAt": "2024-01-01T00:00:00.000Z"
+  }
+}
+```
+
+#### Delete User Account
+
+```http
+DELETE /users/:id
+Authorization: Bearer <token>
+```
+
+Delete a user account and all associated data. This action is irreversible and requires Admin or Super_Admin role.
+
+**Response:**
+
+```json
+{
+  "status": "success",
+  "message": "User Successfully Deleted",
+  "performedBy": "Admin Name"
 }
 ```
 
@@ -467,29 +545,28 @@ Content-Type: application/json
 
 Update user profile information (name, email, etc.).
 
-#### Delete User Account
-
-```http
-DELETE /users/:id
-```
-
-Delete a user account and all associated data.
-
 ---
 
-**Note:** These endpoints are not yet implemented. Contributions are welcome! Please refer to the [Contributing](#-contributing) section for guidelines.
+**Note:** The remaining endpoints listed above are not yet implemented. Contributions are welcome! Please refer to the [Contributing](#-contributing) section for guidelines.
 
 ## 🗃 Database Schema
 
 ### User Model
 
-| Field    | Type          | Constraints       |
-| -------- | ------------- | ----------------- |
-| id       | String (UUID) | Primary Key       |
-| name     | String        | Required          |
-| email    | String        | Unique, Required  |
-| password | String        | Required (Hashed) |
-| createAt | DateTime      | Default: now()    |
+| Field     | Type          | Constraints          |
+| --------- | ------------- | -------------------- |
+| id        | String (UUID) | Primary Key          |
+| name      | String        | Required             |
+| email     | String        | Unique, Required     |
+| password  | String        | Required (Hashed)    |
+| role      | UserRole      | Default: User (enum) |
+| createdAt | DateTime      | Default: now()       |
+
+**UserRole Enum:**
+
+- `User` - Default role for regular users
+- `Admin` - Administrative access
+- `Super_Admin` - Full system access
 
 ### Movie Model
 
@@ -507,16 +584,16 @@ Delete a user account and all associated data.
 
 ### WatchlistItem Model
 
-| Field     | Type           | Constraints         |
-| --------- | -------------- | ------------------- |
-| id        | String (UUID)  | Primary Key         |
-| userId    | String         | Foreign Key → User  |
-| movieId   | String         | Foreign Key → Movie |
-| status    | WashlistStatus | Default: PLANNED    |
-| rating    | Int            | Optional (1-5)      |
-| note      | String         | Optional            |
-| createdAt | DateTime       | Default: now()      |
-| updatedAt | DateTime       | Default: now()      |
+| Field     | Type            | Constraints         |
+| --------- | --------------- | ------------------- |
+| id        | String (UUID)   | Primary Key         |
+| userId    | String          | Foreign Key → User  |
+| movieId   | String          | Foreign Key → Movie |
+| status    | WatchlistStatus | Default: PLANNED    |
+| rating    | Int             | Optional (1-10)     |
+| note      | String          | Optional            |
+| createdAt | DateTime        | Default: now()      |
+| updatedAt | DateTime        | Default: now()      |
 
 **Unique Constraint:** A user cannot add the same movie twice (`userId` + `movieId`)
 
@@ -530,11 +607,13 @@ Delete a user account and all associated data.
 
 - **Password Hashing**: All passwords are hashed using bcryptjs with salt rounds
 - **JWT Authentication**: Secure token-based authentication
+- **Role-Based Access Control**: User roles (User, Admin, Super_Admin) with protected routes
 - **HTTP-Only Cookies**: Tokens stored in HTTP-only cookies to prevent XSS attacks
 - **CSRF Protection**: SameSite cookie attribute set to 'strict'
 - **Environment-based Security**: Different security settings for development and production
-- **Input Validation**: Request body validation on all endpoints
+- **Input Validation**: Request body validation using Zod schemas on all endpoints
 - **Error Messages**: Sanitized error messages in production mode
+- **Authorization Middleware**: Role-based access control via `requireRole` middleware
 
 ## 🧪 Development
 
