@@ -119,7 +119,7 @@ const updateWatchlistItem = async (req, res) => {
     }
 }
 
-
+// delete watchlist from the db only by the user who created the watchlist
 const removeFromWatchlist = async (req, res) => {
     try {
         const id = req.params.id

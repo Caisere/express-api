@@ -1,5 +1,5 @@
 import express from 'express'
-import { getAllUsers } from '../controllers/usersController.js'
+import { deleteUser, getAllUsers, getIndividualUser } from '../controllers/usersController.js'
 import { authMiddleware } from '../middleware/authMiddleware.js'
 import { requireRole } from '../middleware/requireRole.js'
 
@@ -14,5 +14,9 @@ router.use(authMiddleware)
 */
 
 router.get('/', requireRole("Admin", "Super_Admin"), getAllUsers)
+
+router.get('/:id', requireRole("Admin", "Super_Admin"), getIndividualUser)
+
+router.delete('/:id', requireRole("Admin", "Super_Admin"), deleteUser)
 
 export default router;
