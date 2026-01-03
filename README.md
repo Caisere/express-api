@@ -294,10 +294,37 @@ GET /movies
 }
 ```
 
-#### Create Movie
+
+#### Get Individual Movie
 
 ```http
-POST /movies
+GET /movies/:id
+```
+
+**Response:**
+
+```json
+{
+  "message": "Success",
+  "movie": {
+    "id": "109c4edd-604f-4b6b-b011-a36451ea5f97",
+    "title": "Game of Thrones",
+    "overview": "Nine noble families wage war against each other in order to gain control over the mythical land of Westeros, while an ancient enemy returns after being dormant for millennia.",
+    "releaseYear": 2011,
+    "genres": ["Fantasy", "Drama", "Adventure"],
+    "runtime": 57,
+    "posterUrl": "https://image.tmdb.org/t/p/original/u3bZgnGQ9T01sWNhyveQz0wH0Hl.jpg",
+    "createdAt": "2026-01-03T14:24:13.363Z"
+  }
+}
+```
+
+#### Create Movie
+
+- The ability to create movies is limited to creators with Admin or Super_Admin roles
+
+```http
+POST /movies/add 
 Content-Type: application/json
 
 {
@@ -309,8 +336,6 @@ Content-Type: application/json
   "posterUrl": "https://example.com/poster.jpg"
 }
 ```
-
-**Note:** This endpoint currently returns the request body. Full implementation with database persistence is pending.
 
 ### Watchlist Endpoints
 
@@ -493,7 +518,7 @@ GET /
 
 ```json
 {
-  "message": "This is the home page"
+  "message": "This is the Home Page of the Movie WatchedList API"
 }
 ```
 
@@ -572,6 +597,8 @@ Update user profile information (name, email, etc.).
 | posterUrl   | String        | Optional           |
 | createdBy   | String        | Foreign Key → User |
 | createdAt   | DateTime      | Default: now()     |
+
+**Unique Constraint:** A movie cannot add the same movie twice (`title` + `releaseYear`)
 
 ### WatchlistItem Model
 
