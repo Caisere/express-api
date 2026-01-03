@@ -23,7 +23,7 @@ app.use('/watchlist', watchlistRoutes)
 
 app.get("/", (req, res) => {
     return res.json({
-        message: "This is the home page",
+        message: "This is the Home Page of the Movie WatchedList API",
     });
 });
 
