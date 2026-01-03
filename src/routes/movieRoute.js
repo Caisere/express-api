@@ -1,10 +1,13 @@
 import express from 'express'
-import { getAllMovies } from '../controllers/moviesController.js'
+import { getAllMovies, getMovieById } from '../controllers/moviesController.js'
+import { validateUUIDMiddleware } from '../middleware/validateUUIDMiddleware.js'
 
 // creating a route, we use the .router() function
 const router = express.Router()
 
 router.get("/", getAllMovies)
+
+router.get('/:id', validateUUIDMiddleware('id'), getMovieById)
 
 router.post("/", (req, res) => {
     const data = req.body

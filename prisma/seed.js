@@ -1,5 +1,5 @@
 import {PrismaClient} from '@prisma/client';
-import { env } from '../src/validators/envValidation';
+import { env } from '../src/validators/envValidation.js';
 
 const prisma = new PrismaClient();
 
