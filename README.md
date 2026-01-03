@@ -519,15 +519,6 @@ GET /watchlist/:id
 
 Retrieve a specific watchlist item by its ID.
 
-### Movie Endpoints
-
-#### Get Single Movie
-
-```http
-GET /movies/:id
-```
-
-Retrieve detailed information about a specific movie by its ID.
 
 ### User Endpoints
 
