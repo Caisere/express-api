@@ -20,5 +20,6 @@ export const generateToken = (userId, res) => {
         maxAge: (1000 * 60 * 60 * 24) * 7 // expires in 7days
     })
 
+    // !
     return token
 }

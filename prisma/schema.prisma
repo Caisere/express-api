@@ -51,6 +51,8 @@ model Movie {
     //relations
     creator       User            @relation("MovieCreator", fields: [createdBy], references: [id], onDelete: Cascade)
     watchlistItem WatchlistItem[]
+
+    @@unique([title, releaseYear])
 }
 
 enum WatchlistStatus {
