@@ -9,6 +9,7 @@ import userRoutes from "./routes/usersRoute.js"
 import watchlistRoutes from './routes/watchlistRoute.js'
 import { env } from "./validators/envValidation.js";
 
+// instantiate express
 const app = express();
 
 //body parser middleware

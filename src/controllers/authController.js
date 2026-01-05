@@ -53,7 +53,7 @@ const register = async (req, res) => {
         // generate jwt token
         const token = generateToken(user.id, res)
 
-        return res.status(201).json({
+        return res.status(200).json({
             success: "User Successful Created",
             data: {
                 user: {
@@ -102,7 +102,7 @@ const login = async (req, res) => {
 
         // if no user exist, return user already exist error
         if (!user) {
-            return res.status(401).json({
+            return res.status(400).json({
                 error: "Invalid email or password"
             });
         }
@@ -112,7 +112,7 @@ const login = async (req, res) => {
 
 
         if (!isPasswordValid) {
-            return res.status(401).json({
+            return res.status(400).json({
                 error: "Invalid email or password"
             });
         }
@@ -121,7 +121,6 @@ const login = async (req, res) => {
         const token = generateToken(user.id, res)
         
         return res.status(200).json({
-            statusCode: 200,
             success: "user successfully logged in",
             data: {
                 user: {
