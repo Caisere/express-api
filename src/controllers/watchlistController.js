@@ -32,6 +32,44 @@ const getUsersWatchlist = async (req, res) => {
     }
 }
 
+const getWatchedListByUser = async (req, res) => {
+    try {
+        const userId = req.params.id
+
+        // find user in the watchListItem's table
+        const user = await prisma.watchlistItem.findMany({
+            where: {
+                userId: userId,
+            },
+            include: {
+                movie: true
+            }
+        })
+
+        if (!user) {
+            return res.status(404),json({
+                error: "You have not added any movie to the watched movies yet. Please, try adding movies now!"
+            })
+        }
+
+        // filter the movies
+        const movies = user.map(userMovies => userMovies.movie)
+
+        return res.status(200).json({
+            message: "Success",
+            data: movies,
+            total: movies.length
+        })
+
+    } catch(err) {
+        console.error(err.message)
+        return res.status(500).json({
+            error: "Internal server error. Please try again!",
+            message: env.NODE_ENV === 'development' ? err.message : undefined,
+        })
+    }
+}
+
 const addToWatchlist = async (req, res) => {
     try {
         const {movieId, status, rating, note} = req.body;
@@ -195,4 +233,4 @@ const removeFromWatchlist = async (req, res) => {
     }
 }
 
-export {getUsersWatchlist, addToWatchlist, updateWatchlistItem,removeFromWatchlist}
+export {getUsersWatchlist, getWatchedListByUser, addToWatchlist, updateWatchlistItem,removeFromWatchlist} 

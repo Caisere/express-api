@@ -354,6 +354,34 @@ Authorization: Bearer <token>
 }
 ```
 
+**Status Options:**
+
+- `PLANNED` - Planning to watch
+- `WATCHING` - Currently watching
+- `COMPLETED` - Finished watching
+- `DROPPED` - Stopped watching
+
+**Note:** `userId` is automatically extracted from the authenticated user's token. `status`, `rating`, and `note` are optional fields. Rating must be an integer between 1 and 10.
+
+**Response:**
+
+```json
+{
+  "message": "Movie successfully added!",
+  "data": {
+    "id": "watchlist-uuid",
+    "userId": "user-uuid",
+    "movieId": "movie-uuid",
+    "status": "PLANNED",
+    "rating": 5,
+    "note": "Must watch this weekend!",
+    "createdAt": "2024-01-01T00:00:00.000Z",
+    "updatedAt": "2024-01-01T00:00:00.000Z"
+  }
+}
+```
+
+
 #### Get Movie to Watchedlist
 
 ```http
@@ -387,32 +415,34 @@ Retrieve the list of all watched movies. Only accessible by authenticated user o
 }
 ```
 
-**Status Options:**
+#### Get Specific Watchlist Item
 
-- `PLANNED` - Planning to watch
-- `WATCHING` - Currently watching
-- `COMPLETED` - Finished watching
-- `DROPPED` - Stopped watching
+```http
+GET /watchlist/:id
+```
 
-**Note:** `userId` is automatically extracted from the authenticated user's token. `status`, `rating`, and `note` are optional fields. Rating must be an integer between 1 and 10.
+Retrieve a specific watchlist item by its ID.
 
 **Response:**
 
 ```json
 {
-  "message": "Movie successfully added!",
-  "data": {
-    "id": "watchlist-uuid",
-    "userId": "user-uuid",
-    "movieId": "movie-uuid",
-    "status": "PLANNED",
-    "rating": 5,
-    "note": "Must watch this weekend!",
-    "createdAt": "2024-01-01T00:00:00.000Z",
-    "updatedAt": "2024-01-01T00:00:00.000Z"
-  }
+  "message": "Success",
+  "data": [
+    {
+        "id": "06ca9197-b731-4ff5-bdf7-b7aa4876703c",
+        "title": "Inception",
+        "overview": "A skilled thief leads a team into dreams to steal secrets from the subconscious.",
+        "releaseYear": 2010,
+        "genres": ["Sci-Fi", "Thriller"],
+        "runtime": 148,
+        "posterUrl": "https://example.com/inception.jpg",
+        "createdBy": "3224ae2f-fc81-4774-ba4d-11fd3c0c3dc0",
+        "createdAt": "2026-01-03T13:00:59.666Z"
+    }
+  ],
+  "total": 1
 }
-```
 
 #### Update Watchlist Item
 
@@ -558,17 +588,6 @@ GET /
 ## 🔮 Future Endpoints
 
 The following endpoints are planned for future implementation and are open for collaboration:
-
-### Watchlist Endpoints
-
-#### Get Specific Watchlist Item
-
-```http
-GET /watchlist/:id
-```
-
-Retrieve a specific watchlist item by its ID.
-
 
 ### User Endpoints
 
