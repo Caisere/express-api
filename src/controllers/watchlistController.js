@@ -1,6 +1,37 @@
 import { prisma } from "../config/db.js";
 import { env } from "../validators/envValidation.js";
 
+const getUsersWatchlist = async (req, res) => {
+    try {
+        const userWatchlist = await prisma.watchlistItem.findMany({
+            include: {
+                movie: true
+            }
+        })
+
+        if(userWatchlist.length < 0) {
+            return res.status(404).json({
+                error: 'No movies found on the watchlist table'
+            })
+        }
+
+        const movies = userWatchlist.map(watchedMovies => watchedMovies.movie)
+
+        return  res.status(200).json({
+            massage: 'Success',
+            data: movies,
+            total: movies.length
+        })
+
+    } catch (err) {
+        console.error(err.message)
+        return res.status(500).json({
+            error: "Internal server error. Please try again!",
+            message: env.NODE_ENV === 'development' ? err.message : undefined,
+        })
+    }
+}
+
 const addToWatchlist = async (req, res) => {
     try {
         const {movieId, status, rating, note} = req.body;
@@ -164,4 +195,4 @@ const removeFromWatchlist = async (req, res) => {
     }
 }
 
-export {addToWatchlist, updateWatchlistItem,removeFromWatchlist}
+export {getUsersWatchlist, addToWatchlist, updateWatchlistItem,removeFromWatchlist}

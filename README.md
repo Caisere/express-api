@@ -354,6 +354,39 @@ Authorization: Bearer <token>
 }
 ```
 
+#### Get Movie to Watchedlist
+
+```http
+GET /watchlist
+
+Content-Type: application/json
+Authorization: Bearer <token>
+```
+
+Retrieve the list of all watched movies. Only accessible by authenticated user only
+
+**Response:**
+
+```json
+{
+  "message": "Success",
+  "data": [
+    {
+        "id": "06ca9197-b731-4ff5-bdf7-b7aa4876703c",
+        "title": "Inception",
+        "overview": "A skilled thief leads a team into dreams to steal secrets from the subconscious.",
+        "releaseYear": 2010,
+        "genres": ["Sci-Fi", "Thriller"],
+        "runtime": 148,
+        "posterUrl": "https://example.com/inception.jpg",
+        "createdBy": "3224ae2f-fc81-4774-ba4d-11fd3c0c3dc0",
+        "createdAt": "2026-01-03T13:00:59.666Z"
+    }
+  ],
+  "total": 1
+}
+```
+
 **Status Options:**
 
 - `PLANNED` - Planning to watch
@@ -527,14 +560,6 @@ GET /
 The following endpoints are planned for future implementation and are open for collaboration:
 
 ### Watchlist Endpoints
-
-#### Get User's Watchlist
-
-```http
-GET /watchlist
-```
-
-Retrieve all watchlist items for the authenticated user.
 
 #### Get Specific Watchlist Item
 
