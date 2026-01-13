@@ -1,5 +1,6 @@
 import "dotenv/config";
 import express from "express";
+import cors from 'cors'
 import { connectDB, disconnectDB } from "./config/db.js";
 
 //import Routes
@@ -11,6 +12,15 @@ import { env } from "./validators/envValidation.js";
 
 // instantiate express
 const app = express();
+
+
+app.use(
+    cors({
+        origin: 'http://localhost:3000',
+        credentials: true,
+    })
+)
+
 
 //body parser middleware
 app.use(express.json()); //Built in middleware for express to properly handle json data.

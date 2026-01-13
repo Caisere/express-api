@@ -4,19 +4,19 @@ import { authMiddleware } from '../middleware/authMiddleware.js'
 import { requireRole } from '../middleware/requireRole.js'
 
 
-
 const router = express.Router()
 
+//Middlewares
 router.use(authMiddleware)
+router.use(requireRole("Admin", "Super_Admin"))
 
-/* 
-    1. use a middleware to check who's trying to get users. this route should be a protected route between Admin and Super_Admin --- ✔️ 
-*/
 
-router.get('/', requireRole("Admin", "Super_Admin"), getAllUsers)
+// Routes
+router.get('/', getAllUsers)
 
-router.get('/:id', requireRole("Admin", "Super_Admin"), getIndividualUser)
+router.get('/:id', getIndividualUser)
 
-router.delete('/:id', requireRole("Admin", "Super_Admin"), deleteUser)
+router.delete('/:id', deleteUser)
+
 
 export default router;
