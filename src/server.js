@@ -9,10 +9,13 @@ import authRoutes from "./routes/authRoute.js";
 import userRoutes from "./routes/usersRoute.js"
 import watchlistRoutes from './routes/watchlistRoute.js'
 import { env } from "./validators/envValidation.js";
+import cookieParser from "cookie-parser";
 
 // instantiate express
 const app = express();
 
+
+app.use(cookieParser())
 
 app.use(
     cors({

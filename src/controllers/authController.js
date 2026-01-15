@@ -143,9 +143,11 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
     try {
-        res.cookie('jwt', "", {
+        res.clearCookie('jwt', {
             httpOnly: true,
-            expires: new Date(0)
+            sameSite: 'lax', // MUST match login
+            secure: env.NODE_ENV === 'production',  // true in production (https)
+            path: '/',      // VERY IMPORTANT
         })
         
         return res.status(200).json({

@@ -2,6 +2,7 @@ import { prisma } from "../config/db.js";
 import { env } from "../validators/envValidation.js";
 
 const getAllUsers = async (req, res) => {
+    console.log('user:', req.user)
     try {
         const users = await prisma.user.findMany({
             select: {
